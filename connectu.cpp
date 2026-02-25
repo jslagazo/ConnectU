@@ -167,7 +167,13 @@ private:
 
     unsigned long hashFunction(string key) {
         // TODO: LAB 2
-        return 0; 
+        // Polynomial Rolling Hash Function
+        const unsigned long Base = 31;
+        unsigned long hash = 0;
+        for (char ch : key) {
+            hash = (hash * Base + (unsigned long)ch) % TABLE_SIZE;
+        }
+        return hash; 
     }
 
 public:
@@ -176,12 +182,21 @@ public:
         for (int i = 0; i < TABLE_SIZE; i++) table[i] = nullptr;
     }
 
-    void put(string key, User* user) { /* TODO: LAB 2 */ }
+    void put(string key, User* user) { /* TODO: LAB 2 */ 
+        unsigned long index = hashFunction(key);
+        // Chaining: insert new node at the head of the bucket list (O(1))
+        HashNode* newNode = new HashNode(key, user);
+        newNode->next = table[index];
+        table[index] = newNode;
+    }
 
     User* get(string key) {
-        // --- TEMPORARY FALLBACK FOR LAB 1 ---
-        for(User* u : allUsers) {
-            if (u->username == key) return u;
+        unsigned long index = hashFunction(key);
+        // Traverse the linked list at this bucket; handle collisions
+        HashNode* current = table[index];
+        while (current != nullptr) {
+            if (current->key == key) return current->value;
+            current = current->next;
         }
         // TODO: LAB 2 - REPLACE ABOVE WITH HASH LOOKUP
         return nullptr;
