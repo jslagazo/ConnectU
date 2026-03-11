@@ -38,7 +38,10 @@ struct Post {
         
     // TODO: LAB 3 - Implement Scoring Logic
     double getScore() {
-        return 0.0; 
+        // Score formula: (Likes * 10) + (1000 / (HoursOld + 1))
+        long now = time(nullptr);                       // Current time in seconds
+        double hoursOld = (now - timestamp) / 3600.0;   // Convert age to hours
+        return (likes * 10.0) + (1000.0 / (hoursOld + 1.0));
     }
 };
 
@@ -140,13 +143,83 @@ private:
     Post* heap[1000]; 
     int size;
 
-    void heapifyDown(int index) { /* TODO: LAB 3 */ }
-    void heapifyUp(int index) { /* TODO: LAB 3 */ }
+    void heapifyDown(int index) { 
+        /* TODO: LAB 3 */ 
+        // Swap the node downwards until the heap property is restored
+        while (true) {
+            int left = 2 * index + 1;   // Left child index
+            int right = 2 * index + 2;  // Right child index
+            int largest = index;        // Assuming current index is largest
+            // If left child exists and has a larger score then update largest
+            if (left < size && heap[left]->getScore() > heap[largest]->getScore()) {
+                largest = left;
+            }
+            // If right child exists and has a larger score then update largest
+            if (right < size && heap[right]->getScore() > heap[largest]->getScore()) {
+                largest = right;
+            }
+            // If current node is already larger than both children then we're done
+            if (largest == index) {
+                break;
+            }
+            // Swap the current node with the larger child
+            Post* tmp = heap[index];
+            heap[index] = heap[largest];
+            heap[largest] = tmp;
+            // Move down to the largest index and continue heapifying
+            index = largest;
+        }
+    }
+    void heapifyUp(int index) { 
+        /* TODO: LAB 3 */ 
+        // Swap node upward while it's greater than its parent
+        while (index > 0) {
+            int parent = (index - 1) / 2;
+            // If heap property is satisfied then stop
+            if (heap[index]->getScore() <= heap[parent]->getScore()) break;
+            // Swap current node with parent
+            Post* tmp = heap[index];
+            heap[index] = heap[parent];
+            heap[parent] = tmp;
+            // Continue heapifying up from the parent index
+            index = parent;
+        }
+    }
 
 public:
     FeedHeap() : size(0) {}
-    void push(Post* p) { /* TODO: LAB 3 */ }
-    Post* popMax() { return nullptr; /* TODO: LAB 3 */ }
+    void push(Post* p) {
+        /* TODO: LAB 3 */ 
+        // Prevent overflow of fixed array size for safety
+        if (size >= 1000) {
+            return;
+        }
+        // Insert at end of heap array
+        heap[size] = p;
+        // Fix heap by bubbling the inserted item up
+        heapifyUp(size);
+        // Increase size after insertion is placed correctly
+        size++;
+    }
+    Post* popMax() {
+        /* TODO: LAB 3 */
+        // Heap empty check
+        if (size == 0) {
+            return nullptr;
+        }
+        // Max post is always at root in max-heap
+        Post* maxPost = heap[0];
+        // Move last element to the root, shrink heap
+        size--;
+        heap[0] = heap[size];
+        // Clear the last element for safety
+        heap[size] = nullptr;
+        // Restore heap property by pushing the new root down
+        if (size > 0) {
+        heapifyDown(0);
+        }
+        return maxPost;
+    }
     bool isEmpty() { return size == 0; }
 };
 
