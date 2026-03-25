@@ -131,10 +131,33 @@ public:
 // BST Implementation
 BSTNode* FriendBST::insert(BSTNode* node, User* u) {
     // TODO: LAB 4
+    // Base Case: If current node is null, insert new user here
+    if (node == nullptr) {
+        return new BSTNode(u);
+    }
+    // Compare usernames to decide left or right subtree
+    // Recurse into left or right subtree and update with returned subtree root
+    if (u->username < node->user->username) {
+        node->left = insert(node->left, u);
+    } else if (u->username > node->user->username) {
+        node->right = insert(node->right, u);
+    } 
+    // If usernames are equal then do nothing
+    // Return original node pointer 
     return node;
 }
 void FriendBST::printInOrder(BSTNode* node) {
     // TODO: LAB 4
+    // Base Case: Empty subtree then nothing to print
+    if (node == nullptr) {
+        return;
+    }
+    // Print everything "smaller" than this node first; left subtree
+    printInOrder(node->left);
+    // Print the current node
+    cout << "  @" << node->user->username << endl;
+    // Print everything "larger" than this node first; right subtree
+    printInOrder(node->right);
 }
 
 // TODO: LAB 3 - Max Heap
