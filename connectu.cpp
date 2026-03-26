@@ -156,7 +156,7 @@ void FriendBST::printInOrder(BSTNode* node) {
     printInOrder(node->left);
     // Print the current node
     cout << "  @" << node->user->username << endl;
-    // Print everything "larger" than this node first; right subtree
+    // Print everything "larger" than this node last; right subtree
     printInOrder(node->right);
 }
 
