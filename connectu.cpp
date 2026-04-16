@@ -368,6 +368,46 @@ void addFriendship(User* requester, User* target) {
 void recommendFriends(User* startUser) {
     cout << "\n[GRAPH ANALYSIS] Finding friends of friends..." << endl;
     // TODO: LAB 5
+
+    queue<User*> q;
+    // userIds we've already visited (to prevent cycles)
+    set<int> visited;
+    // userIds of direct friends (to exclude from recommendations)
+    set<int> directFriends;
+
+    // Mark self as visited so we don't recommend ourselves
+    visited.insert(startUser->userId);
+    // Add direct friends to the queue
+    for (User* f : startUser->friends) {
+        if (f == nullptr) continue;
+        directFriends.insert(f->userId);
+        // True only if newly inserted
+        if (visited.insert(f->userId).second) {
+            q.push(f);
+        }
+    }
+
+    bool foundAny = false;
+    // Process each direct friend and look at their friends
+    while (!q.empty()) {
+        User* current = q.front();
+        q.pop();
+        for (User* ff : current->friends) {
+            if (ff == nullptr) continue;
+            // Skip if candidate is you
+            if (ff->userId == startUser->userId) continue;
+            // Skip if candidate is already a direct friend
+            if (directFriends.count(ff->userId)) continue;
+            // If we've already visited this user then skip to prevent cycles
+            if (!visited.insert(ff->userId).second) continue;
+            // Candidate is a friend-of-friend we haven't seen before, recommend them
+            cout << " Recommended: @" << ff->username << " (mutual: @" << current->username << ")" << endl;
+            foundAny = true;
+            }
+        }
+    if (!foundAny) {
+        cout << " No recommendations found for friend-of-friend." << endl;
+    }
 }
 
 // ==========================================
